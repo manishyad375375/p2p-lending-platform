@@ -21,10 +21,10 @@ async function main() {
 
   // Connect to contracts
   const KYCRegistry = await ethers.getContractFactory("KYCRegistry");
-  const kycRegistry = KYCRegistry.attach(addresses.KYCRegistry);
+  const kycRegistry = await KYCRegistry.attach(addresses.KYCRegistry);
 
   const CreditScore = await ethers.getContractFactory("CreditScore");
-  const creditScore = CreditScore.attach(addresses.CreditScore);
+  const creditScore = await CreditScore.attach(addresses.CreditScore);
 
   console.log("\n1. Setting KYC provider permissions...");
   const kycTx = await kycRegistry.setProvider(BACKEND_SIGNER, true);
@@ -37,7 +37,7 @@ async function main() {
   console.log("✓ Backend signer can now update credit scores");
 
   console.log("\n=== Permissions Granted ===");
-  console.log(`Backend signer ${BACKEND_SIGNER} can now:");
+  console.log(`Backend signer ${BACKEND_SIGNER} can now:`);
   console.log("  ✓ Update KYC status");
   console.log("  ✓ Update credit scores");
 }
