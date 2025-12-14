@@ -7,8 +7,7 @@ const LENDING_POOL_ABI = [
   'function withdraw(bytes32 poolId, uint256 amount) external',
   'function borrow(bytes32 poolId, uint256 amount) external',
   'function repay(bytes32 poolId, uint256 amount) external',
-  'function positions(bytes32 poolId, address user) view returns (uint256 deposited, uint256 borrowed, uint256 debtIndex)',
-  'function getPoolId(address asset) pure returns (bytes32)'
+  'function positions(bytes32 poolId, address user) view returns (uint256 deposited, uint256 borrowed, uint256 debtIndex)'
 ];
 
 const ERC20_ABI = [
@@ -27,9 +26,14 @@ const LendingPools = () => {
   const [balance, setBalance] = useState('0');
   const [loading, setLoading] = useState(false);
 
-  // Contract addresses
-  const LENDING_POOL_ADDRESS = import.meta.env.VITE_LENDING_POOL_ADDRESS;
+  // Contract addresses - update these with your deployed addresses
+  const LENDING_POOL_ADDRESS = import.meta.env.VITE_LENDING_POOL_ADDRESS || '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0';
   const MOCK_USDC_ADDRESS = '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e'; // From your deployment
+
+  // Calculate poolId same way as contract: keccak256(abi.encodePacked(address(asset)))
+  const getPoolId = (assetAddress) => {
+    return ethers.solidityPackedKeccak256(['address'], [assetAddress]);
+  };
 
   useEffect(() => {
     if (typeof window.ethereum !== 'undefined') {
@@ -58,8 +62,9 @@ const LendingPools = () => {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const lendingPool = new ethers.Contract(LENDING_POOL_ADDRESS, LENDING_POOL_ABI, provider);
       
-      // Get pool ID for Mock USDC
-      const poolId = await lendingPool.getPoolId(MOCK_USDC_ADDRESS);
+      // Calculate pool ID
+      const poolId = getPoolId(MOCK_USDC_ADDRESS);
+      console.log('Pool ID:', poolId);
       
       // Get user position
       const pos = await lendingPool.positions(poolId, userAddress);
@@ -99,14 +104,22 @@ const LendingPools = () => {
       const lendingPool = new ethers.Contract(LENDING_POOL_ADDRESS, LENDING_POOL_ABI, signer);
       
       const amount = ethers.parseUnits(depositAmount, 18);
-      const poolId = await lendingPool.getPoolId(MOCK_USDC_ADDRESS);
+      const poolId = getPoolId(MOCK_USDC_ADDRESS);
+      
+      console.log('Deposit details:');
+      console.log('- Amount:', depositAmount);
+      console.log('- Pool ID:', poolId);
+      console.log('- Token:', MOCK_USDC_ADDRESS);
+      console.log('- Lending Pool:', LENDING_POOL_ADDRESS);
       
       // Check allowance
       const allowance = await token.allowance(account, LENDING_POOL_ADDRESS);
+      console.log('Current allowance:', ethers.formatUnits(allowance, 18));
       
       if (allowance < amount) {
         console.log('Approving tokens...');
         const approveTx = await token.approve(LENDING_POOL_ADDRESS, amount);
+        console.log('Approval tx:', approveTx.hash);
         await approveTx.wait();
         console.log('Tokens approved!');
       }
@@ -114,9 +127,10 @@ const LendingPools = () => {
       // Deposit
       console.log('Depositing...');
       const depositTx = await lendingPool.deposit(poolId, amount);
+      console.log('Deposit tx:', depositTx.hash);
       await depositTx.wait();
       
-      alert('Deposit successful!');
+      alert('✅ Deposit successful!');
       setDepositAmount('');
       
       // Refresh position and balance
@@ -124,7 +138,7 @@ const LendingPools = () => {
       await loadBalance(account);
     } catch (error) {
       console.error('Deposit error:', error);
-      alert(`Deposit failed: ${error.message}`);
+      alert(`❌ Deposit failed: ${error.reason || error.message}`);
     } finally {
       setLoading(false);
     }
@@ -143,13 +157,14 @@ const LendingPools = () => {
       const lendingPool = new ethers.Contract(LENDING_POOL_ADDRESS, LENDING_POOL_ABI, signer);
       
       const amount = ethers.parseUnits(borrowAmount, 18);
-      const poolId = await lendingPool.getPoolId(MOCK_USDC_ADDRESS);
+      const poolId = getPoolId(MOCK_USDC_ADDRESS);
       
       console.log('Borrowing...');
       const borrowTx = await lendingPool.borrow(poolId, amount);
+      console.log('Borrow tx:', borrowTx.hash);
       await borrowTx.wait();
       
-      alert('Borrow successful!');
+      alert('✅ Borrow successful!');
       setBorrowAmount('');
       
       // Refresh position and balance
@@ -157,7 +172,7 @@ const LendingPools = () => {
       await loadBalance(account);
     } catch (error) {
       console.error('Borrow error:', error);
-      alert(`Borrow failed: ${error.message}`);
+      alert(`❌ Borrow failed: ${error.reason || error.message}`);
     } finally {
       setLoading(false);
     }
@@ -178,7 +193,7 @@ const LendingPools = () => {
       const lendingPool = new ethers.Contract(LENDING_POOL_ADDRESS, LENDING_POOL_ABI, signer);
       
       const amount = ethers.parseUnits(repayAmount, 18);
-      const poolId = await lendingPool.getPoolId(MOCK_USDC_ADDRESS);
+      const poolId = getPoolId(MOCK_USDC_ADDRESS);
       
       // Check allowance
       const allowance = await token.allowance(account, LENDING_POOL_ADDRESS);
@@ -193,9 +208,10 @@ const LendingPools = () => {
       // Repay
       console.log('Repaying...');
       const repayTx = await lendingPool.repay(poolId, amount);
+      console.log('Repay tx:', repayTx.hash);
       await repayTx.wait();
       
-      alert('Repayment successful!');
+      alert('✅ Repayment successful!');
       setRepayAmount('');
       
       // Refresh position and balance
@@ -203,7 +219,7 @@ const LendingPools = () => {
       await loadBalance(account);
     } catch (error) {
       console.error('Repay error:', error);
-      alert(`Repay failed: ${error.message}`);
+      alert(`❌ Repay failed: ${error.reason || error.message}`);
     } finally {
       setLoading(false);
     }
@@ -268,7 +284,7 @@ const LendingPools = () => {
             disabled={loading || !depositAmount || parseFloat(depositAmount) <= 0}
             className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
-            {loading ? 'Processing...' : 'Deposit'}
+            {loading ? '⏳ Processing...' : 'Deposit'}
           </button>
         </div>
 
@@ -297,8 +313,11 @@ const LendingPools = () => {
             disabled={loading || !borrowAmount || parseFloat(borrowAmount) <= 0 || parseFloat(position.deposited) === 0}
             className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
-            {loading ? 'Processing...' : 'Borrow'}
+            {loading ? '⏳ Processing...' : 'Borrow'}
           </button>
+          {parseFloat(position.deposited) === 0 && (
+            <p className="text-xs text-gray-500 mt-2">💡 Deposit first to borrow</p>
+          )}
         </div>
       </div>
 
@@ -328,7 +347,7 @@ const LendingPools = () => {
             disabled={loading || !repayAmount || parseFloat(repayAmount) <= 0}
             className="w-full bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
-            {loading ? 'Processing...' : 'Repay'}
+            {loading ? '⏳ Processing...' : 'Repay'}
           </button>
         </div>
       )}
