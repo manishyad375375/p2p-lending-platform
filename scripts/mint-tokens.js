@@ -14,7 +14,7 @@ async function main() {
   const addresses = JSON.parse(fs.readFileSync(addressesPath, "utf8"));
 
   if (!addresses.MockUSDC) {
-    console.error("❌ MockUSDC not found. Run create-test-pool.js first.");
+    console.error("\u274c MockUSDC not found. Run create-test-pool.js first.");
     process.exit(1);
   }
 
@@ -30,7 +30,7 @@ async function main() {
   await tx.wait();
 
   const balance = await mockUSDC.balanceOf(deployer.address);
-  console.log("✓ Minted successfully!");
+  console.log("\u2713 Minted successfully!");
   console.log("New balance:", ethers.formatUnits(balance, 18), "USDC");
   console.log("\nYou can now deposit this USDC in the frontend!");
 }

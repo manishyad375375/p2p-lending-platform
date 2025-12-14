@@ -21,17 +21,20 @@ async function main() {
   console.log("\nDeploying mock USDC...");
   const MockERC20 = await ethers.getContractFactory("PlatformToken");
   const mockUSDC = await MockERC20.deploy();
-  await mockUSDC.deployed();
-  console.log("Mock USDC deployed to:", mockUSDC.address);
+  await mockUSDC.waitForDeployment();
+  
+  const mockUSDCAddress = await mockUSDC.getAddress();
+  console.log("Mock USDC deployed to:", mockUSDCAddress);
 
   // Mint some USDC to deployer
-  await mockUSDC.mint(deployer.address, ethers.parseUnits("10000", 18));
+  const amount = ethers.parseUnits("10000", 18);
+  await mockUSDC.mint(deployer.address, amount);
   console.log("Minted 10,000 mock USDC to deployer");
 
   // Create lending pool for USDC
   console.log("\nCreating lending pool...");
   const tx = await lendingPool.createPool(
-    mockUSDC.address,
+    mockUSDCAddress,
     7500, // 75% LTV
     200, // 2% base rate
     500, // utilization slope 1
@@ -40,16 +43,16 @@ async function main() {
   );
   await tx.wait();
 
-  const poolId = await lendingPool.getPoolId(mockUSDC.address);
+  const poolId = await lendingPool.getPoolId(mockUSDCAddress);
   console.log("Pool created with ID:", poolId);
 
   // Save mock token address
-  addresses.MockUSDC = mockUSDC.address;
+  addresses.MockUSDC = mockUSDCAddress;
   addresses.TestPoolId = poolId;
   fs.writeFileSync(addressesPath, JSON.stringify(addresses, null, 2));
 
   console.log("\n=== Test Pool Configuration ===");
-  console.log("Mock USDC Address:", mockUSDC.address);
+  console.log("Mock USDC Address:", mockUSDCAddress);
   console.log("Pool ID:", poolId);
   console.log("LTV: 75%");
   console.log("Base Rate: 2%");
