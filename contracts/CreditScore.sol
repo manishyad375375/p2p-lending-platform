@@ -19,6 +19,8 @@ contract CreditScore is Ownable {
     event ScoreUpdated(address indexed user, uint256 score, bool kycVerified);
     event UpdaterSet(address indexed updater, bool allowed);
 
+    constructor() Ownable(msg.sender) {}
+
     modifier onlyUpdater() {
         require(scoreUpdaters[msg.sender] || msg.sender == owner(), "Not updater");
         _;

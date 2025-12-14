@@ -28,7 +28,7 @@ contract Governance is Ownable {
     event Voted(uint256 indexed id, address voter, bool support, uint256 weight);
     event Executed(uint256 indexed id);
 
-    constructor(PlatformToken _token) {
+    constructor(PlatformToken _token) Ownable(msg.sender) {
         token = _token;
     }
 

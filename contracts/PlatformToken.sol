@@ -17,6 +17,8 @@ contract PlatformToken is IERC20, Ownable {
     event Mint(address indexed to, uint256 amount);
     event Burn(address indexed from, uint256 amount);
 
+    constructor() Ownable(msg.sender) {}
+
     function transfer(address to, uint256 amount) external override returns (bool) {
         _transfer(msg.sender, to, amount);
         return true;

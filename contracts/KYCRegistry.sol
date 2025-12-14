@@ -11,6 +11,8 @@ contract KYCRegistry is Ownable {
     event ProviderSet(address indexed provider, bool allowed);
     event KYCUpdated(address indexed user, bool verified, address indexed provider);
 
+    constructor() Ownable(msg.sender) {}
+
     modifier onlyProvider() {
         require(kycProviders[msg.sender] || msg.sender == owner(), "Not provider");
         _;
