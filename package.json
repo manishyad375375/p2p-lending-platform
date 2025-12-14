@@ -1,62 +1,36 @@
 {
   "name": "p2p-lending-platform",
   "version": "1.0.0",
-  "description": "Decentralized P2P Lending Platform with blockchain integration",
+  "description": "Fully decentralized P2P lending platform on IPFS",
   "main": "index.js",
   "scripts": {
-    "compile": "hardhat compile",
-    "clean": "hardhat clean",
-    "test": "hardhat test",
-    "coverage": "hardhat coverage",
-    "node": "hardhat node",
-    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
-    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
-    "deploy:mumbai": "hardhat run scripts/deploy.js --network mumbai",
-    "deploy:mainnet": "hardhat run scripts/deploy.js --network mainnet",
-    "deploy:polygon": "hardhat run scripts/deploy.js --network polygon",
-    "init:local": "hardhat run scripts/initialize-testnet.js --network localhost",
-    "init:sepolia": "hardhat run scripts/initialize-testnet.js --network sepolia",
-    "create-pool:local": "hardhat run scripts/create-test-pool.js --network localhost",
-    "create-pool:sepolia": "hardhat run scripts/create-test-pool.js --network sepolia",
-    "mint:local": "hardhat run scripts/mint-tokens.js --network localhost",
-    "check-balance": "hardhat run scripts/check-balance.js --network localhost",
-    "check-position": "hardhat run scripts/check-position.js --network localhost",
-    "check-score": "hardhat run scripts/check-score.js --network localhost",
-    "check-kyc": "hardhat run scripts/check-kyc.js --network localhost",
-    "verify:sepolia": "node scripts/verify-all.js sepolia",
-    "verify:mumbai": "node scripts/verify-all.js mumbai",
-    "lint": "solhint 'contracts/**/*.sol'",
-    "format": "prettier --write 'contracts/**/*.sol'"
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "deploy:localhost": "npx hardhat run scripts/deploy.js --network localhost",
+    "deploy:sepolia": "npx hardhat run scripts/deploy.js --network sepolia",
+    "deploy:polygon": "npx hardhat run scripts/deploy.js --network polygon",
+    "node": "npx hardhat node",
+    "frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build"
   },
   "keywords": [
     "defi",
     "lending",
-    "blockchain",
+    "p2p",
     "ethereum",
-    "smart-contracts",
-    "p2p"
+    "ipfs",
+    "web3",
+    "dapp",
+    "serverless"
   ],
   "author": "manishyad375375",
   "license": "MIT",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-    "@openzeppelin/hardhat-upgrades": "^3.0.0",
-    "hardhat": "^2.19.0",
-    "hardhat-gas-reporter": "^1.0.9",
-    "solidity-coverage": "^0.8.5",
-    "solhint": "^4.0.0",
-    "prettier": "^3.1.0",
-    "prettier-plugin-solidity": "^1.2.0"
+    "hardhat": "^2.19.4",
+    "dotenv": "^16.3.1"
   },
   "dependencies": {
-    "@chainlink/contracts": "^0.8.0",
-    "@openzeppelin/contracts": "^5.0.0",
-    "@openzeppelin/contracts-upgradeable": "^5.0.0",
-    "dotenv": "^16.3.1",
-    "ethers": "^6.9.0"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
+    "@openzeppelin/contracts": "^5.0.1"
   }
 }
